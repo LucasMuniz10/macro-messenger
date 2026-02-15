@@ -14,6 +14,39 @@
 // ==/UserScript==
 (function() {
     'use strict';
+    // ================= MONITORAMENTO PERFIL 1 =================
+const MONITOR_URL = "https://script.google.com/macros/s/AKfycbx2oLbV6SLMra_u_xQg1bVQDKbaT9B8IRFn5uo-LoeV_u20E169W6vzTJfVAHxuibna/exec";
+
+const MONITOR_ID     = "P01";
+const MONITOR_NOME   = "Larissa Silva";
+const MONITOR_PAGINA = "Jessica Barbosa";
+
+function monitorPing(status = "OK", observacao = "") {
+
+  const payload = {
+    id: MONITOR_ID,
+    nome: MONITOR_NOME,
+    pagina: MONITOR_PAGINA,
+    acoes: (typeof contEnviados !== "undefined" ? contEnviados : 0),
+    status: status,
+    observacao: observacao
+  };
+
+  fetch(MONITOR_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  }).catch(() => {});
+}
+
+// primeiro ping em 5 segundos
+setTimeout(() => monitorPing("OK", "perfil ativo"), 5000);
+
+// ping a cada 60 segundos
+setInterval(() => {
+  const st = (typeof loopAtivo !== "undefined" && loopAtivo) ? "OK" : "PAUSADO";
+  monitorPing(st, st === "OK" ? "rodando" : "parado");
+}, 60000);
 
     // ================= CONFIGURAÇÃO =================
 
