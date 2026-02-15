@@ -5,6 +5,8 @@
 // @description  Automação contínua para VPS com Auto-Reload e verificações de segurança avançadas.
 // @author       Gemini + Manus + Especialista
 // @match        https://business.facebook.com/*
+// @updateURL    https://raw.githubusercontent.com/LucasMuniz10/macro-messenger/main/macro-v16.user.js
+// @downloadURL  https://raw.githubusercontent.com/LucasMuniz10/macro-messenger/main/macro-v16.user.js
 // @grant        GM_xmlhttpRequest
 // @connect      script.google.com
 // @run-at       document-idle
