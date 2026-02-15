@@ -5,7 +5,8 @@
 // @description  Correção dos seletores de aba (Span) e parada automática se não houver mais leads.
 // @author       Manus + Final Fix
 // @match        https://business.facebook.com/*
-// @grant        none
+// @grant GM_xmlhttpRequest
+// @connect script.google.com
 // @run-at       document-idle
 
 // AUTO UPDATE VIA GITHUB
