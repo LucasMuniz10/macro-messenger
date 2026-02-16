@@ -7,6 +7,8 @@
 // @match        https://business.facebook.com/*
 // @grant        none
 // @run-at       document-idle
+// @updateURL    https://raw.githubusercontent.com/LucasMuniz10/macro-messenger/main/macro-v16.user.js
+// @downloadURL  https://raw.githubusercontent.com/LucasMuniz10/macro-messenger/main/macro-v16.user.js
 // ==/UserScript==
 
 (function() {
