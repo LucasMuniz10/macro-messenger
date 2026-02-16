@@ -14,6 +14,43 @@
 (function() {
     'use strict';
 
+    // === ANTI BACKGROUND THROTTLING ===
+
+Object.defineProperty(document, 'hidden', {value: false});
+Object.defineProperty(document, 'visibilityState', {value: 'visible'});
+
+document.addEventListener('visibilitychange', function(e) {
+    e.stopImmediatePropagation();
+}, true);
+
+document.addEventListener('webkitvisibilitychange', function(e) {
+    e.stopImmediatePropagation();
+}, true);
+
+document.addEventListener('blur', function(e) {
+    e.stopImmediatePropagation();
+}, true);
+
+document.addEventListener('focus', function(e) {
+    e.stopImmediatePropagation();
+}, true);
+
+window.onblur = null;
+window.onfocus = null;
+
+// mantém timers ativos e lista atualizando
+setInterval(() => {
+
+    window.dispatchEvent(new Event('mousemove'));
+
+    document.dispatchEvent(new Event('mousemove'));
+
+    document.dispatchEvent(new Event('scroll'));
+
+}, 3000);
+
+console.log("ANTI-THROTTLING ATIVO");
+
     // ================= AUTO RELOAD PREVENTIVO (25-35 MIN) =================
     (function agendarReloadAutomatico() {
         const min = 25 * 60 * 1000;
