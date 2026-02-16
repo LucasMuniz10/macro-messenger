@@ -1,7 +1,7 @@
 // ==UserScript==
-// @name         Messenger - Macro V16.17 (V16.9 + Trava Botão Concluir)
+// @name         Messenger - Macro V16.20 (INTEGRAL 354 LINHAS + DELAY FIX)
 // @namespace    http://tampermonkey.net/
-// @version      16.17
+// @version      16.20
 // @description  Automação completa com pausas programadas para broadcast e reset de abas.
 // @author       Gemini + Manus + Especialista
 // @match        https://business.facebook.com/*
@@ -13,8 +13,7 @@
 
 (function() {
     'use strict';
-
-    // === ANTI BACKGROUND THROTTLING ===
+  // === ANTI BACKGROUND THROTTLING ===
 
 Object.defineProperty(document, 'hidden', {value: false});
 Object.defineProperty(document, 'visibilityState', {value: 'visible'});
@@ -51,6 +50,8 @@ setInterval(() => {
 
 console.log("ANTI-THROTTLING ATIVO");
 
+
+
     // ================= AUTO RELOAD PREVENTIVO (25-35 MIN) =================
     (function agendarReloadAutomatico() {
         const min = 25 * 60 * 1000;
@@ -83,6 +84,16 @@ console.log("ANTI-THROTTLING ATIVO");
         "Meu amor, Se quiser ver mais conteudos VIP é só clicar aqui --> https://dicasdigrana.com/musas2",
         "Meu amor, Se quiser ver mais conteudos EXCLUSIVOS é só clicar aqui --> https://bit.ly/PRIVADOALINE",
         "Oi, gato! 😘 Se quiser ver mais conteudos VIP é só Clicar aqui ---> https://papoatual.com.br/land10",
+        "E aí, coração? 😍 Tô com um presentinho quente pra te mandar, quer agora ou espero um pouquinho?",
+        "Oi, amorzinho! 😈 Tá gostando do que tá vendo? Posso te surpreender ainda mais, viu?",
+        "Oi, meu bem! 😘 Tá curtindo os conteúdos que mandei? Quer que eu capricho ainda mais? 😈 Se quiser ver mais é só clicar no link e entrar no meu GRUPO VIP https://t.me/+sQhYMvKCAaU1NjRh",
+        "E aí, amor, o que achou do presentinho que te enviei? Se quiser ver mais conteudos VIP é só clicar aqui --> https://dicasdigrana.com/musas2",
+        "Oi, lindo! 😍 Tô pensando em te mandar algo bem especial hoje... Se quiser ver mais conteudos VIP é só clicar aqui --> https://dicasdigrana.com/musas",
+        "Meu amor, Se quiser ver mais conteudos VIP é só clicar aqui --> https://bit.ly/PRIVADOALINE",
+        "Meu amor, Se quiser ver mais conteudos VIP é só clicar aqui --> https://dicasdigrana.com/musas2",
+        "Meu amor, Se quiser ver mais conteudos VIP é só clicar aqui --> https://dicasdigrana.com/musas",
+        "Meu amor, Se quiser ver mais conteudos EXCLUSIVOS é só clicar aqui --> https://dicasdigrana.com/musas",
+        "Oi, gato! 😘 Se quiser ver mais conteudos VIP é só Clicar aqui ---> https://papoatual.com.br/land9",
         "E aí, coração? 😍 Tô com um presentinho quente pra te mandar, quer agora ou espero um pouquinho?",
         "Oi, amorzinho! 😈 Tá gostando do que tá vendo? Posso te surpreender ainda mais, viu?"
     ];
@@ -213,7 +224,7 @@ console.log("ANTI-THROTTLING ATIVO");
             btnMover.click();
             totalMovidos++;
             movidosNoLote++;
-            await esperar(2500); 
+            await esperar(2500);
 
             if (movidosNoLote >= CONFIG.RECICLAGEM_PAUSA_LOTE) {
                 const pausa = Math.floor(Math.random() * (CONFIG.RECICLAGEM_ESPERA_LOTE_SEG[1] - CONFIG.RECICLAGEM_ESPERA_LOTE_SEG[0] + 1) + CONFIG.RECICLAGEM_ESPERA_LOTE_SEG[0]);
@@ -229,7 +240,7 @@ console.log("ANTI-THROTTLING ATIVO");
         log(`⏳ Ciclo Resetado. Aguardando ${esperaMin} min...`);
         setStatusGlobal(`☕ Reinicia em ${esperaMin}m`, 'aviso');
         await esperar(esperaMin * 60000);
-        
+
         emReciclagem = false;
         tentativasSemLead = 0;
         contPualdosHoje = 0;
@@ -262,7 +273,7 @@ console.log("ANTI-THROTTLING ATIVO");
         return false;
     }
 
-    // NOVA FUNÇÃO DE SUPORTE
+    // NOVA FUNÇÃO DE SUPORTE PARA A TRAVA
     function checarBotaoConcluir() {
         const btn = document.querySelector('[aria-label="Mover para Concluídos"], [aria-label="Concluído"], [aria-label="Done"]');
         return !!(btn && isVisible(btn));
@@ -276,17 +287,17 @@ console.log("ANTI-THROTTLING ATIVO");
 
         // Tenta 3x clicar e validar se o chat abriu (botão concluir apareceu)
         for (let i = 0; i < 3; i++) {
-            const el = document.elementFromPoint(rect.left + 50, rect.bottom + (100 + (i * 20))); // Muda levemente o ponto se falhar
+            const el = document.elementFromPoint(rect.left + 50, rect.bottom + (100 + (i * 20)));
             if (el && (el.tagName === 'DIV' || el.tagName === 'SPAN')) {
                 el.click();
-                await esperar(3000); // Espera o chat carregar
-                
+                await esperar(6000); // DELAY AUMENTADO PARA 6 SEGUNDOS (ESPERAR CARREGAR)
+
                 if (checarBotaoConcluir()) {
                     return true; // Sucesso: chat aberto
                 }
             }
             log(`Tentativa ${i+1} de abrir lead sem sucesso...`);
-            await esperar(2000);
+            await esperar(3000); // DELAY ENTRE TENTATIVAS AUMENTADO
         }
 
         return false; // Se chegar aqui, falhou 3x e o ciclo principal chamará reciclagem
@@ -300,11 +311,11 @@ console.log("ANTI-THROTTLING ATIVO");
         if (verificarHorarioBroadcast()) {
             log('❄️ Horário de Broadcast detectado. Congelando automação...');
             setStatusGlobal('❄️ Pausa Broadcast', 'aviso');
-            
+
             while (verificarHorarioBroadcast()) {
                 await esperar(60000); // Checa a cada 1 minuto se o horário acabou
             }
-            
+
             log('🔥 Horário de Broadcast encerrado. Atualizando lista antes de recomeçar...');
             await executarResetAbas();
         }
@@ -346,7 +357,7 @@ console.log("ANTI-THROTTLING ATIVO");
                         contProcessados++;
                         await esperar(4000);
                         await clicarConcluir();
-                        
+
                         if (contEnviadosLote >= CONFIG.QTD_PARA_PAUSA) {
                             const p = (Math.random() * (CONFIG.PAUSA_MINUTOS_MAX - CONFIG.PAUSA_MINUTOS_MIN) + CONFIG.PAUSA_MINUTOS_MIN);
                             log(`Pausa Curta: ${p.toFixed(1)} min`);
@@ -371,15 +382,15 @@ console.log("ANTI-THROTTLING ATIVO");
         p.id = 'macro-panel-v16';
         p.style.cssText = `position:fixed;top:10px;right:10px;z-index:999999;background:#1a1a1a;color:#ff00ff;padding:15px;border:2px solid #ff00ff;border-radius:10px;width:280px;font-family:monospace;font-size:11px;box-shadow:0 0 15px rgba(255,0,255,0.4);`;
         p.innerHTML = `
-            <h3 style="text-align:center;color:#ff00ff;margin:0 0 10px">V16.17 FINAL VPS</h3>
+            <h3 style="text-align:center;color:#ff00ff;margin:0 0 10px">V16.20 FINAL VPS</h3>
             <div id="macro-status" style="text-align:center;color:yellow;margin-bottom:10px;font-weight:bold">Iniciando...</div>
             <div id="macro-counters" style="text-align:center;color:#ccc;margin-bottom:15px;border-top:1px solid #333;padding-top:5px">---</div>
             <button id="btn-stop" style="width:100%;background:#ff1744;color:white;border:none;padding:10px;cursor:pointer;font-weight:bold;border-radius:5px;">⏹ PARAR MANUALMENTE</button>
         `;
         document.body.appendChild(p);
-        document.getElementById('btn-stop').onclick = () => { 
-            loopAtivo = false; 
-            setStatusGlobal('⏹ PARADO PELO USUÁRIO', 'erro'); 
+        document.getElementById('btn-stop').onclick = () => {
+            loopAtivo = false;
+            setStatusGlobal('⏹ PARADO PELO USUÁRIO', 'erro');
             log('Interrompido manualmente.');
         };
     }
