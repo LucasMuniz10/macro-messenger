@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         Messenger - Macro V16.7 (VPS 24h - Blindado + Reciclagem)
+// @name         Messenger - Macro V16.9 (Broadcast Freeze + Reset)
 // @namespace    http://tampermonkey.net/
-// @version      16.7
-// @description  Automação completa: Proteção de data, Reciclagem Motor V17 e Operação 24h.
+// @version      16.9
+// @description  Automação completa com pausas programadas para broadcast e reset de abas.
 // @author       Gemini + Manus + Especialista
 // @match        https://business.facebook.com/*
 // @grant        none
@@ -68,6 +68,40 @@
         if (el) {
             el.textContent = msg;
             el.style.color = tipo === 'erro' ? '#ff5555' : (tipo === 'aviso' ? '#ffff00' : '#00ff00');
+        }
+    }
+
+    // ================= LÓGICA DE HORÁRIO BROADCAST =================
+    function verificarHorarioBroadcast() {
+        const agora = new Date();
+        const hora = agora.getHours();
+        const min = agora.getMinutes();
+        const tempoEmMinutos = (hora * 60) + min;
+
+        // Janela 1: 12:00 (720 min) às 13:00 (780 min)
+        if (tempoEmMinutos >= 720 && tempoEmMinutos < 780) return true;
+
+        // Janela 2: 00:00 (0 min) às 01:30 (90 min)
+        if (tempoEmMinutos >= 0 && tempoEmMinutos < 90) return true;
+
+        return false;
+    }
+
+    async function executarResetAbas() {
+        log('🔄 Resetando Abas para atualizar lista pós-broadcast...');
+        const xpathTodas = `//span[contains(text(), "Todas as")]`;
+        const resTodas = document.evaluate(xpathTodas, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+        if (resTodas && isVisible(resTodas)) {
+            resTodas.click();
+            if (resTodas.parentElement) resTodas.parentElement.click();
+            await esperar(8000);
+        }
+        const spans = Array.from(document.querySelectorAll('span'));
+        const btnMessenger = spans.find(el => el.innerText.trim() === 'Messenger' && isVisible(el));
+        if (btnMessenger) {
+            btnMessenger.click();
+            if (btnMessenger.parentElement) btnMessenger.parentElement.click();
+            await esperar(10000);
         }
     }
 
@@ -152,23 +186,7 @@
             }
         }
 
-        // RESET DE ABAS
-        log('🔄 Resetando Abas (GitHub Style)...');
-        const xpathTodas = `//span[contains(text(), "Todas as")]`;
-        const resTodas = document.evaluate(xpathTodas, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
-        if (resTodas && isVisible(resTodas)) {
-            resTodas.click();
-            if (resTodas.parentElement) resTodas.parentElement.click();
-            await esperar(8000);
-        }
-
-        const spans = Array.from(document.querySelectorAll('span'));
-        const btnMessenger = spans.find(el => el.innerText.trim() === 'Messenger' && isVisible(el));
-        if (btnMessenger) {
-            btnMessenger.click();
-            if (btnMessenger.parentElement) btnMessenger.parentElement.click();
-            await esperar(10000);
-        }
+        await executarResetAbas();
 
         const esperaMin = Math.floor(Math.random() * (CONFIG.PAUSA_RECOMECO_RECICLAGEM_MAX - CONFIG.PAUSA_RECOMECO_RECICLAGEM_MIN + 1)) + CONFIG.PAUSA_RECOMECO_RECICLAGEM_MIN;
         log(`⏳ Ciclo Resetado. Aguardando ${esperaMin} min...`);
@@ -220,6 +238,19 @@
     // ================= LOOP PRINCIPAL =================
     async function cicloV16() {
         if (!loopAtivo || emReciclagem) return;
+
+        // VERIFICAÇÃO DE HORÁRIO DE CONGELAMENTO (BROADCAST)
+        if (verificarHorarioBroadcast()) {
+            log('❄️ Horário de Broadcast detectado. Congelando automação...');
+            setStatusGlobal('❄️ Pausa Broadcast', 'aviso');
+            
+            while (verificarHorarioBroadcast()) {
+                await esperar(60000); // Checa a cada 1 minuto se o horário acabou
+            }
+            
+            log('🔥 Horário de Broadcast encerrado. Atualizando lista antes de recomeçar...');
+            await executarResetAbas();
+        }
 
         if (contEnviados >= CONFIG.LIMITE_DIARIO) {
             const h = Math.random() * (CONFIG.PAUSA_EXPEDIENTE_MAX_HORAS - CONFIG.PAUSA_EXPEDIENTE_MIN_HORAS) + CONFIG.PAUSA_EXPEDIENTE_MIN_HORAS;
@@ -283,15 +314,15 @@
         p.id = 'macro-panel-v16';
         p.style.cssText = `position:fixed;top:10px;right:10px;z-index:999999;background:#1a1a1a;color:#ff00ff;padding:15px;border:2px solid #ff00ff;border-radius:10px;width:280px;font-family:monospace;font-size:11px;box-shadow:0 0 15px rgba(255,0,255,0.4);`;
         p.innerHTML = `
-            <h3 style="text-align:center;color:#ff00ff;margin:0 0 10px">V16.7 FINAL VPS</h3>
+            <h3 style="text-align:center;color:#ff00ff;margin:0 0 10px">V16.9 FINAL VPS</h3>
             <div id="macro-status" style="text-align:center;color:yellow;margin-bottom:10px;font-weight:bold">Iniciando...</div>
             <div id="macro-counters" style="text-align:center;color:#ccc;margin-bottom:15px;border-top:1px solid #333;padding-top:5px">---</div>
             <button id="btn-stop" style="width:100%;background:#ff1744;color:white;border:none;padding:10px;cursor:pointer;font-weight:bold;border-radius:5px;">⏹ PARAR MANUALMENTE</button>
         `;
         document.body.appendChild(p);
-        document.getElementById('btn-stop').onclick = () => { 
-            loopAtivo = false; 
-            setStatusGlobal('⏹ PARADO PELO USUÁRIO', 'erro'); 
+        document.getElementById('btn-stop').onclick = () => { 
+            loopAtivo = false; 
+            setStatusGlobal('⏹ PARADO PELO USUÁRIO', 'erro'); 
             log('Interrompido manualmente.');
         };
     }
